@@ -1,0 +1,6 @@
+@TurnoSys.API_HostAddress = http://localhost:5105
+
+GET {{TurnoSys.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

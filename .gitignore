@@ -1,0 +1,32 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.swp
+.DS_Store
+logs/
+*.log
+
+# Secrets
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+.env
+.env.*
+secrets.json
+user-secrets.json
+
+# Node
+node_modules/
+dist/
+.cache/
+*.local
+
+# EF migrations - keep but exclude from secrets
+# (migrations tracked in source control)
+
+# Railway / Docker
+.dockerignore
+docker-compose.override.yml

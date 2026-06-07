@@ -1,0 +1,23 @@
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using TurnoSys.Application.Common.Exceptions;
+using TurnoSys.Application.Common.Interfaces;
+using TurnoSys.Application.Common.Models;
+using TurnoSys.Domain.Entities;
+
+namespace TurnoSys.Application.Features.Turnos.Commands.AtenderTurno;
+
+public class AtenderTurnoCommandHandler(IApplicationDbContext db)
+    : IRequestHandler<AtenderTurnoCommand, Result>
+{
+    public async Task<Result> Handle(AtenderTurnoCommand request, CancellationToken ct)
+    {
+        var turno = await db.Turnos
+            .FirstOrDefaultAsync(t => t.Id == request.TurnoId && t.EmpresaId == request.EmpresaId && !t.IsDeleted, ct)
+            ?? throw new NotFoundException(nameof(Turno), request.TurnoId);
+
+        turno.MarcarAtendido();
+        await db.SaveChangesAsync(ct);
+        return Result.Ok();
+    }
+}
