@@ -8,6 +8,7 @@ namespace TurnoSys.Infrastructure.Jobs;
 
 public class HangfireRecordatorioScheduler(
     ApplicationDbContext db,
+    IRecurringJobManager recurringJobManager,
     ILogger<HangfireRecordatorioScheduler> logger) : IRecordatorioScheduler
 {
     public async Task ProgramarAsync(CancellationToken ct = default)
@@ -18,10 +19,12 @@ public class HangfireRecordatorioScheduler(
 
         var options = new RecurringJobOptions { TimeZone = tz };
 
-        RecurringJob.AddOrUpdate<RecordatoriosTurnosJob>(
+        // Usar el manager inyectado (no la API estática RecurringJob), que no
+        // depende de JobStorage.Current — falla en algunos órdenes de arranque.
+        recurringJobManager.AddOrUpdate<RecordatoriosTurnosJob>(
             "recordatorios-turnos", j => j.Execute(), cron, options);
 
-        RecurringJob.AddOrUpdate<RecordatoriosControlJob>(
+        recurringJobManager.AddOrUpdate<RecordatoriosControlJob>(
             "recordatorios-control", j => j.Execute(), cron, options);
 
         logger.LogInformation(
