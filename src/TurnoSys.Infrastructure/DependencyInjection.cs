@@ -53,16 +53,25 @@ public static class DependencyInjection
                 new MySqlStorageOptions
                 {
                     TransactionIsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
-                    QueuePollInterval = TimeSpan.FromSeconds(15),
-                    JobExpirationCheckInterval = TimeSpan.FromHours(1),
-                    CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                    // Intervalos altos: la BD es externa (cada query es egress) y
+                    // solo corremos 2 jobs diarios. Menos polling = menos egress.
+                    QueuePollInterval = TimeSpan.FromSeconds(60),
+                    JobExpirationCheckInterval = TimeSpan.FromHours(6),
+                    CountersAggregateInterval = TimeSpan.FromMinutes(30),
                     PrepareSchemaIfNecessary = true,
                     DashboardJobListLimit = 50000,
                     TransactionTimeout = TimeSpan.FromMinutes(1),
                     TablesPrefix = "Hangfire"
                 })));
 
-        services.AddHangfireServer();
+        // Pocos workers y pollers espaciados: alcanza de sobra para 2 jobs diarios.
+        services.AddHangfireServer(options =>
+        {
+            options.WorkerCount = 2;
+            options.SchedulePollingInterval = TimeSpan.FromSeconds(60);
+            options.HeartbeatInterval = TimeSpan.FromMinutes(1);
+            options.ServerCheckInterval = TimeSpan.FromMinutes(5);
+        });
         services.AddScoped<RecordatoriosTurnosJob>();
         services.AddScoped<RecordatoriosControlJob>();
         services.AddScoped<IRecordatorioScheduler, HangfireRecordatorioScheduler>();
