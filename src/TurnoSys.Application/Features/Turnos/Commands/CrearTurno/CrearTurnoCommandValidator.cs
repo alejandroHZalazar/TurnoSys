@@ -10,11 +10,12 @@ public class CrearTurnoCommandValidator : AbstractValidator<CrearTurnoCommand>
         RuleFor(x => x.ProfesionalId).NotEmpty();
         RuleFor(x => x.PacienteId).NotEmpty();
         RuleFor(x => x.PracticaId).NotEmpty();
-        // FechaHoraInicio viene en "wall-clock" (hora local del negocio),
-        // así que comparamos contra DateTime.Now (también local), no UtcNow.
+        // FechaHoraInicio viene en "wall-clock" de Argentina (UTC-3 fijo, sin DST).
+        // "ahora AR" se calcula desde UtcNow en cada validación (Must), para no
+        // depender de la zona horaria del servidor (Railway corre en UTC).
         RuleFor(x => x.FechaHoraInicio)
             .NotEmpty()
-            .GreaterThan(DateTime.Now.AddMinutes(-5))
+            .Must(fecha => fecha > DateTime.UtcNow.AddHours(-3).AddMinutes(-5))
             .WithMessage("No se puede reservar un turno en el pasado.");
         RuleFor(x => x.Observaciones).MaximumLength(2000).When(x => x.Observaciones != null);
     }
