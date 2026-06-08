@@ -1,8 +1,9 @@
 FROM node:22-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+# Copiamos todo de una (incluye package-lock.json). Evita el bug de cache de
+# BuildKit en Railway con COPY selectivos (package*.json no traía el lock).
 COPY . .
+RUN npm ci
 RUN npm run build
 
 FROM nginx:alpine AS final
