@@ -13,7 +13,7 @@ const schema = z.object({
   nombreCompleto: z.string().min(2, 'Requerido'),
   email: z.string().email('Email inválido'),
   password: z.string().optional(),
-  rolId: z.coerce.number().min(1, 'Seleccione un rol'),
+  rolId: z.number({ invalid_type_error: 'Seleccione un rol' }).min(1, 'Seleccione un rol'),
   isActivo: z.boolean(),
 })
 
@@ -36,7 +36,7 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as import('react-hook-form').Resolver<FormData>,
     defaultValues: {
       nombreCompleto: '',
       email: '',
@@ -101,7 +101,8 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
       ),
   })
 
-  const onSubmit = (d: FormData) => (isEdit ? editar.mutate(d) : crear.mutate(d))
+  const onSubmit: import('react-hook-form').SubmitHandler<FormData> = (d) =>
+    isEdit ? editar.mutate(d) : crear.mutate(d)
 
   if (!isOpen) return null
 
@@ -158,7 +159,7 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
             <select
-              {...register('rolId')}
+              {...register('rolId', { valueAsNumber: true })}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {roles.map((r) => (
