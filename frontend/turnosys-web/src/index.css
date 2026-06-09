@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* La app usa solo modo claro. Redefinimos el variant "dark" para que solo
+   se active con una clase .dark (que nunca aplicamos), en vez de seguir el
+   prefers-color-scheme del dispositivo. Asi las clases dark: quedan inactivas
+   y la app se ve siempre en claro, sin importar el modo del celular. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
 @theme {
   --color-primary: #4f46e5;
   --color-primary-hover: #4338ca;
