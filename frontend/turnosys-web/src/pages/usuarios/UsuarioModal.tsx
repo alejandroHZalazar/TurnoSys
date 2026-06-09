@@ -13,7 +13,7 @@ const schema = z.object({
   nombreCompleto: z.string().min(2, 'Requerido'),
   email: z.string().email('Email inválido'),
   password: z.string().optional(),
-  rolId: z.number({ invalid_type_error: 'Seleccione un rol' }).min(1, 'Seleccione un rol'),
+  rolId: z.number().min(1, 'Seleccione un rol'),
   isActivo: z.boolean(),
 })
 
