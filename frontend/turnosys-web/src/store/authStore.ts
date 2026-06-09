@@ -7,6 +7,7 @@ interface AuthState {
   nombreCompleto: string | null
   rol: string | null
   empresaId: string | null
+  permisos: string[]          // lista de permisos del rol; vacío = sin restricción si es SuperAdmin
   isAuthenticated: boolean
   login: (data: {
     accessToken: string
@@ -14,6 +15,7 @@ interface AuthState {
     nombreCompleto: string
     rol: string
     empresaId?: string
+    permisos?: string[]
   }) => void
   logout: () => void
 }
@@ -26,6 +28,7 @@ export const useAuthStore = create<AuthState>()(
       nombreCompleto: null,
       rol: null,
       empresaId: null,
+      permisos: [],
       isAuthenticated: false,
       login: (data) =>
         set({
@@ -34,6 +37,7 @@ export const useAuthStore = create<AuthState>()(
           nombreCompleto: data.nombreCompleto,
           rol: data.rol,
           empresaId: data.empresaId ?? null,
+          permisos: data.permisos ?? [],
           isAuthenticated: true,
         }),
       logout: () =>
@@ -43,6 +47,7 @@ export const useAuthStore = create<AuthState>()(
           nombreCompleto: null,
           rol: null,
           empresaId: null,
+          permisos: [],
           isAuthenticated: false,
         }),
     }),

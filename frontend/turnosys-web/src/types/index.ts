@@ -58,6 +58,26 @@ export interface LoginResponse {
   nombreCompleto: string
   rol: string
   empresaId?: string
+  permisos?: string[]
+}
+
+export interface Usuario {
+  id: string
+  nombreCompleto: string
+  email: string
+  rolId: number
+  rolNombre: string
+  isActivo: boolean
+  ultimoAcceso?: string
+  empresaId?: string
+  profesionalId?: string
+}
+
+export interface Rol {
+  id: number
+  nombre: string
+  descripcion?: string
+  permisos?: string
 }
 
 export interface ApiResponse<T> {

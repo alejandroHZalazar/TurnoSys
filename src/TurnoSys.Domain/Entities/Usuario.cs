@@ -14,8 +14,11 @@ public class Usuario : BaseEntity
     public int IntentosFallidos { get; set; } = 0;
     public DateTime? BloqueadoHasta { get; set; }
 
+    public Guid? ProfesionalId { get; set; }
+
     public Empresa? Empresa { get; set; }
     public Rol Rol { get; set; } = null!;
+    public Profesional? Profesional { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     public ICollection<Notificacion> Notificaciones { get; set; } = [];
 }

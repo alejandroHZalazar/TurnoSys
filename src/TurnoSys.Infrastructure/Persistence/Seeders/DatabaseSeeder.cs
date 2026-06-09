@@ -50,10 +50,26 @@ public class DatabaseSeeder(ApplicationDbContext db, ILogger<DatabaseSeeder> log
         if (await db.Roles.AnyAsync()) return;
 
         db.Roles.AddRange(
-            new Rol { Id = 1, Nombre = "SuperAdmin",    Descripcion = "Administrador global del sistema" },
-            new Rol { Id = 2, Nombre = "Administrador", Descripcion = "Administrador de empresa" },
-            new Rol { Id = 3, Nombre = "Recepcionista",  Descripcion = "Gestión de turnos y pacientes" },
-            new Rol { Id = 4, Nombre = "Profesional",    Descripcion = "Acceso a su propia agenda" }
+            new Rol
+            {
+                Id = 1, Nombre = "SuperAdmin", Descripcion = "Administrador global del sistema",
+                Permisos = null   // null = acceso total
+            },
+            new Rol
+            {
+                Id = 2, Nombre = "Administrador", Descripcion = "Administrador de empresa",
+                Permisos = """["agenda.ver","agenda.crear","agenda.editar","agenda.cancelar","pacientes.ver","pacientes.crear","pacientes.editar","pacientes.eliminar","profesionales.ver","profesionales.crear","profesionales.editar","profesionales.eliminar","practicas.ver","practicas.crear","practicas.editar","practicas.eliminar","dashboard.ver","empresa.ver","empresa.editar","configuracion.ver","configuracion.editar","usuarios.ver","usuarios.crear","usuarios.editar","usuarios.desactivar"]"""
+            },
+            new Rol
+            {
+                Id = 3, Nombre = "Recepcionista", Descripcion = "Gestión de turnos y pacientes",
+                Permisos = """["agenda.ver","agenda.crear","agenda.editar","agenda.cancelar","pacientes.ver","pacientes.crear","pacientes.editar","profesionales.ver","practicas.ver","dashboard.ver"]"""
+            },
+            new Rol
+            {
+                Id = 4, Nombre = "Profesional", Descripcion = "Acceso a su propia agenda",
+                Permisos = """["agenda.ver","pacientes.ver","dashboard.ver"]"""
+            }
         );
 
         logger.LogInformation("[Seeder] Roles creados.");

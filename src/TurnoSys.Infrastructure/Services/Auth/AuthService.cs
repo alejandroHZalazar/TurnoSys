@@ -31,6 +31,7 @@ public class AuthService(IConfiguration config) : IAuthService
             new Claim(ClaimTypes.Name, usuario.NombreCompleto),
             new Claim(ClaimTypes.Role, usuario.Rol?.Nombre ?? ""),
             new Claim("empresa_id", usuario.EmpresaId?.ToString() ?? ""),
+            new Claim("permisos", usuario.Rol?.Permisos ?? ""),
         };
 
         var token = new JwtSecurityToken(
