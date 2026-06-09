@@ -64,7 +64,8 @@ body {
   .fc .fc-toolbar-title {
     font-size: 0.85rem !important;
   }
-  .fc .fc-toolbar.fc-header-toolbar {
-    gap: 0.25rem;
+  .fc .fc-toolbar-chunk .fc-button {
+    padding: 0.25rem 0.4rem !important;
+    font-size: 0.75rem !important;
   }
 }
