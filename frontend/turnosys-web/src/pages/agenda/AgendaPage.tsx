@@ -97,6 +97,7 @@ export default function AgendaPage() {
               dayGridMonth: { buttonText: 'Mes' },
             }}
             locale={esLocale}
+            titleFormat={{ year: 'numeric', month: 'short', day: 'numeric' }}
             headerToolbar={{
               left: 'prev,next',
               center: 'title',

@@ -51,3 +51,20 @@ body {
   cursor: pointer;
   border-radius: 4px !important;
 }
+
+/* Evita que el título de la fecha salte de línea en mobile */
+.fc .fc-toolbar-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1rem !important;
+}
+
+@media (max-width: 480px) {
+  .fc .fc-toolbar-title {
+    font-size: 0.85rem !important;
+  }
+  .fc .fc-toolbar.fc-header-toolbar {
+    gap: 0.25rem;
+  }
+}
