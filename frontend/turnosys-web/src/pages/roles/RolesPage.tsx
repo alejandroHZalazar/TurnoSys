@@ -114,7 +114,7 @@ function RolCard({ rol }: RolCardProps) {
     )
   }
 
-  const toggleModulo = (modulo: string, keys: string[]) => {
+  const toggleModulo = (_modulo: string, keys: string[]) => {
     const todosActivos = keys.every((k) => permisos.includes(k))
     if (todosActivos) {
       setPermisos((prev) => prev.filter((p) => !keys.includes(p)))

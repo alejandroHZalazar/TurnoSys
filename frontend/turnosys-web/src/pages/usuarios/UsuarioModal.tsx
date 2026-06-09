@@ -8,15 +8,8 @@ import { X } from 'lucide-react'
 import { usuariosApi } from '@/api/usuarios'
 import type { Rol, Usuario } from '@/types'
 
-const schemaCrear = z.object({
-  nombreCompleto: z.string().min(2, 'Requerido'),
-  email: z.string().email('Email inválido'),
-  password: z.string().min(8, 'Mínimo 8 caracteres'),
-  rolId: z.coerce.number().min(1, 'Seleccione un rol'),
-  isActivo: z.boolean(),
-})
-
-const schemaEditar = z.object({
+// Schema único: password requerida al crear (isEdit=false), opcional al editar
+const schema = z.object({
   nombreCompleto: z.string().min(2, 'Requerido'),
   email: z.string().email('Email inválido'),
   password: z.string().optional(),
@@ -24,7 +17,7 @@ const schemaEditar = z.object({
   isActivo: z.boolean(),
 })
 
-type FormData = z.infer<typeof schemaCrear>
+type FormData = z.infer<typeof schema>
 
 interface Props {
   isOpen: boolean
@@ -43,7 +36,7 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
     reset,
     formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(isEdit ? schemaEditar : schemaCrear) as ReturnType<typeof zodResolver>,
+    resolver: zodResolver(schema),
     defaultValues: {
       nombreCompleto: '',
       email: '',
@@ -68,36 +61,47 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
   }, [usuario, reset])
 
   const crear = useMutation({
-    mutationFn: (d: FormData) => usuariosApi.crear({
-      nombreCompleto: d.nombreCompleto,
-      email: d.email,
-      password: d.password!,
-      rolId: d.rolId,
-    }),
+    mutationFn: (d: FormData) => {
+      if (!d.password || d.password.length < 8)
+        return Promise.reject(new Error('La contraseña debe tener al menos 8 caracteres.'))
+      return usuariosApi.crear({
+        nombreCompleto: d.nombreCompleto,
+        email: d.email,
+        password: d.password,
+        rolId: d.rolId,
+      })
+    },
     onSuccess: () => {
       toast.success('Usuario creado')
       qc.invalidateQueries({ queryKey: ['usuarios'] })
       onClose()
     },
-    onError: (e: unknown) => toast.error((e as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Error al crear'),
+    onError: (e: unknown) => {
+      const msg = (e as { response?: { data?: { error?: string } }; message?: string })
+      toast.error(msg?.response?.data?.error ?? msg?.message ?? 'Error al crear')
+    },
   })
 
   const editar = useMutation({
-    mutationFn: (d: FormData) => usuariosApi.editar(usuario!.id, {
-      nombreCompleto: d.nombreCompleto,
-      email: d.email,
-      rolId: d.rolId,
-      isActivo: d.isActivo,
-    }),
+    mutationFn: (d: FormData) =>
+      usuariosApi.editar(usuario!.id, {
+        nombreCompleto: d.nombreCompleto,
+        email: d.email,
+        rolId: d.rolId,
+        isActivo: d.isActivo,
+      }),
     onSuccess: () => {
       toast.success('Usuario actualizado')
       qc.invalidateQueries({ queryKey: ['usuarios'] })
       onClose()
     },
-    onError: (e: unknown) => toast.error((e as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Error al editar'),
+    onError: (e: unknown) =>
+      toast.error(
+        (e as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Error al editar'
+      ),
   })
 
-  const onSubmit = (d: FormData) => isEdit ? editar.mutate(d) : crear.mutate(d)
+  const onSubmit = (d: FormData) => (isEdit ? editar.mutate(d) : crear.mutate(d))
 
   if (!isOpen) return null
 
@@ -122,7 +126,9 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
               {...register('nombreCompleto')}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-            {errors.nombreCompleto && <p className="text-xs text-red-500 mt-1">{errors.nombreCompleto.message}</p>}
+            {errors.nombreCompleto && (
+              <p className="text-xs text-red-500 mt-1">{errors.nombreCompleto.message}</p>
+            )}
           </div>
 
           <div>
@@ -143,7 +149,9 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
                 type="password"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              )}
             </div>
           )}
 
@@ -154,7 +162,9 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               {roles.map((r) => (
-                <option key={r.id} value={r.id}>{r.nombre}</option>
+                <option key={r.id} value={r.id}>
+                  {r.nombre}
+                </option>
               ))}
             </select>
             {errors.rolId && <p className="text-xs text-red-500 mt-1">{errors.rolId.message}</p>}
@@ -163,7 +173,9 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
           {isEdit && (
             <div className="flex items-center gap-2">
               <input type="checkbox" id="isActivo" {...register('isActivo')} className="rounded" />
-              <label htmlFor="isActivo" className="text-sm text-gray-700">Activo</label>
+              <label htmlFor="isActivo" className="text-sm text-gray-700">
+                Activo
+              </label>
             </div>
           )}
 
@@ -180,7 +192,11 @@ export default function UsuarioModal({ isOpen, onClose, usuario, roles }: Props)
               disabled={crear.isPending || editar.isPending}
               className="flex-1 px-4 py-2 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
             >
-              {crear.isPending || editar.isPending ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Crear usuario'}
+              {crear.isPending || editar.isPending
+                ? 'Guardando…'
+                : isEdit
+                  ? 'Guardar cambios'
+                  : 'Crear usuario'}
             </button>
           </div>
         </form>
